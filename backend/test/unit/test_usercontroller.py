@@ -1,64 +1,48 @@
 import pytest
 import unittest.mock as mock
 
-from src.util.dao import DAO
 from src.controllers.usercontroller import UserController
 
-def test_valid_email_exists():
-
-    # create data access object as a mock
+@pytest.mark.unit
+@pytest.mark.parametrize("objList, expected", [
+    #one match
+    ([{'firstName': 'Jane',  'lastName': 'Doe', 'email': 'jane.doe@gmail.com'}],
+      # expected value
+      {'firstName': 'Jane',  'lastName': 'Doe', 'email': 'jane.doe@gmail.com'}),
+    #Two matches
+    ([{'firstName': 'Jane', 'lastName': 'Doe', 'email': 'jane.doe@gmail.com'},
+      {'firstName': 'Jane', 'lastName': 'Doe', 'email': 'jane.doe@gmail.com'}],
+      # expected value
+      {'firstName': 'Jane', 'lastName': 'Doe', 'email': 'jane.doe@gmail.com'}),
+    #no matches
+    ([], None)
+])
+def test_emails(objList, expected):
+    # Create a mock that returns the parametrized values
     mockedDao = mock.MagicMock()
+    mockedDao.find.return_value = objList
 
-    # create the objects to be tested
-    obj1 = {'firstName': 'Jane', 'lastName': 'Doe', 'email': 'jane.doe@gmail.com'}
-    obj2 = {'firstName': 'Jane2', 'lastName': 'Doe2', 'email': 'jane.doe@gmail.com'}
-    obj_list = [obj1, obj2]
-
-    # set return value of dao.find to obj_list
-    mockedDao.find.return_value = obj_list
-
-    # create a UserController with the data access object
+    # Create sut with the mock
     sut = UserController(mockedDao)
 
-    # Run the function to be tested with the same email as the object we added
-    validation_result = sut.get_user_by_email("jane.doe@gmail.com")
+    # Check if correct value is returned
+    validationResult = sut.get_user_by_email("jane.doe@gmail.com")
+    assert validationResult == expected
 
-    # The get_user_by_email("jane.doe@gmail.com") should return the first object from the obj_list
-    assert validation_result == obj1
-
-def test_valid_email_not_exists():
-    # create data access object as a mock
-    mockedDao = mock.MagicMock()
-
-    # set return value of dao.find to []
-    mockedDao.find.return_value = []
-
-    # create a UserController with the data access object
-    sut = UserController(mockedDao)
-
-    # Run the function with a valid email
-    validation_result = sut.get_user_by_email("jane.doe@gmail.com")
-
-    # The get_user_by_email("jane.doe@gmail.com") should return None
-    assert validation_result == None
-
-
+@pytest.mark.unit
 def test_invalid_email():
-
-    # create data access object as a mock
+    # create a mock of database
     mockedDao = mock.MagicMock()
 
-    # create the objects to be tested
+    # Define what the mock should respond with
     obj1 = {'firstName': 'Jane', 'lastName': 'Doe', 'email': 'jane.doe.com'}
     obj_list = [obj1]
-
-    # set return value of dao.find to obj_list
     mockedDao.find.return_value = obj_list
 
-    # create a UserController with the data access object
+    # create sut with the mock
     sut = UserController(mockedDao)
 
-    # Test if the function raises the correct error
+    # Check if a valueError is raised when mail is incorrect.
     with pytest.raises(ValueError) as e:
         sut.get_user_by_email("jane.doe.com")
     assert e.type == ValueError
