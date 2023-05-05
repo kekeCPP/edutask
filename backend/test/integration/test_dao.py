@@ -6,16 +6,33 @@ from bson.objectid import ObjectId
 from src.util.dao import DAO
 
 @pytest.mark.integration
-def test_create_invalid_input():
+def test_rule1_noncompliant():
     dao = DAO("user")
     obj = {'lastName': 'Doe', 'email': 'jane.doe@gmail.com'}
 
     with pytest.raises(Exception) as e:
-        dao.create(obj)
+        created_obj1 = dao.create(obj)
+
+        # delete if object was created in database
+        id = created_obj1['_id']['$oid']
+        dao.collection.delete_one({'_id': ObjectId(id)})
     assert e.type == errors.WriteError
 
 @pytest.mark.integration
-def test_create_same_email():
+def test_rule2_noncompliant():
+    dao = DAO("user")
+    #functions shouldn't allow integers
+    obj = {'firstName': 10, 'lastName': 'Doe', 'email': 'jane.doe@gmail.com'}
+
+    with pytest.raises(Exception) as e:
+        created_obj1 = dao.create(obj)
+        # delete if object was created in database
+        id = created_obj1['_id']['$oid']
+        dao.collection.delete_one({'_id': ObjectId(id)})
+    assert e.type == errors.WriteError
+
+@pytest.mark.integration
+def test_3_noncompliant():
     """Should raise WriteError when creating multiple objects with the same email beacuse email has uniqueItems: true"""
 
     # Create objects
@@ -39,14 +56,23 @@ def test_create_same_email():
     dao.collection.delete_one({'_id': ObjectId(objId1)})
     # Make sure the exception is a WriteError
     assert e.type == errors.WriteError
-    
 
 
 @pytest.mark.integration
 def test_create():
+    # Create objects
     dao = DAO("user")
-    obj = {'firstName': 'Jane',  'lastName': 'Doe', 'email': 'jane.doe@gmail.com'}
-    created_obj = dao.create(obj)
-    objId = created_obj['_id']['$oid']
-    dao.collection.delete_one({'_id': ObjectId(objId)})
-    assert created_obj["email"] == obj["email"]
+    obj1 = {'firstName': 'Jane', 'lastName': 'Doe', 'email': 'jane.doe@gmail.com'}
+
+    created_obj1 = dao.create(obj1)
+
+    # Get id from object so we can delete it later
+    objId1 = created_obj1['_id']['$oid']
+
+    # Delete obj1 if an exception was raised because obj2 would never be created
+    dao.collection.delete_one({'_id': ObjectId(objId1)})
+
+    # remove id from created obj
+    del created_obj1['_id']
+
+    assert created_obj1 == obj1
