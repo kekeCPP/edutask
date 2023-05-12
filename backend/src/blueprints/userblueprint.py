@@ -7,7 +7,9 @@ from src.util.daos import getDao
 from src.controllers.usercontroller import UserController
 from src.controllers.taskcontroller import TaskController
 controller = UserController(getDao(collection_name='user'))
-taskcontroller = TaskController(tasks_dao=getDao(collection_name='task'), videos_dao=getDao(collection_name='video'), todos_dao=getDao(collection_name='todo'), users_dao=getDao(collection_name='user'))
+taskcontroller = TaskController(tasks_dao=getDao(collection_name='task'), videos_dao=getDao(collection_name='video'), 
+                                todos_dao=getDao(collection_name='todo'), users_dao=getDao(collection_name='user'),
+                                articles_dao=getDao(collection_name='article'))
 
 # instantiate the flask blueprint
 user_blueprint = Blueprint('user_blueprint', __name__)

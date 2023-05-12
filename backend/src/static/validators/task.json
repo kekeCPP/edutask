@@ -38,6 +38,9 @@
             },
             "video": {
                 "bsonType": "objectId"
+            },
+            "article": {
+                "bsonType": "objectId"
             }
         }
     }
