@@ -16,7 +16,7 @@ jobs:
 
       - name: list
         run:
-          ls
+          ls /home/runner/work/edutask/edutask
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
