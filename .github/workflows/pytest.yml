@@ -14,15 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: list
-        run:
-          cd /home/runner/work/edutask/edutask/backend
-
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
           cache: 'pip'
+          cache-dependency-path: /home/runner/work/edutask/edutask/backend/requirements.pip
 
       - name: Install dependencies
         run:
