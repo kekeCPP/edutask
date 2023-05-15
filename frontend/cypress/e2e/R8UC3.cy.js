@@ -61,7 +61,7 @@ describe('Testing create, toggle and delete on todo items', () => {
     })
   })
 
-  it('checkSetTodoDone', () => {
+  it('checkRemoveTodo', () => {
     cy.contains('div', taskTitle).click()
 
     //cy.contains('li', 'Eat food').find('span[class="checker unchecked"]').click()

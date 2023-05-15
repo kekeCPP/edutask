@@ -8,7 +8,7 @@ import json
 from src.controllers.taskcontroller import TaskController
 from src.util.daos import getDao
 controller = TaskController(tasks_dao=getDao(collection_name='task'), videos_dao=getDao(collection_name='video'), todos_dao=getDao(collection_name='todo'), 
-                            users_dao=getDao(collection_name='user'), articles_dao=getDao(collection_name='article'))
+                            users_dao=getDao(collection_name='user'))
 
 # instantiate the flask blueprint
 task_blueprint = Blueprint('task_blueprint', __name__)

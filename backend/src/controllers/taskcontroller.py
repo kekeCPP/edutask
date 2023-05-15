@@ -5,12 +5,11 @@ from src.controllers.controller import Controller
 from src.util.dao import DAO
 
 class TaskController(Controller):
-    def __init__(self, tasks_dao: DAO, videos_dao: DAO, todos_dao: DAO, users_dao: DAO, articles_dao: DAO):
+    def __init__(self, tasks_dao: DAO, videos_dao: DAO, todos_dao: DAO, users_dao: DAO):
         super().__init__(dao=tasks_dao)
         self.videos_dao = videos_dao
         self.todos_dao = todos_dao
         self.users_dao = users_dao
-        self.articles_dao = articles_dao
 
     def create(self, data: dict):
         """Create a new task object based on the data contained in the dict. The data must contain at least a userid, a video url and a title. If todos are contained in the data, create todo objects and associate them to the task
@@ -40,10 +39,6 @@ class TaskController(Controller):
             data['categories'] = []
 
         try:
-            # add the article url
-            article = self.articles_dao.create({'url': data['url']})
-            del data['url']
-            data['article'] = ObjectId(article['_id']['$oid'])
 
             # add the video url
             video = self.videos_dao.create({'url': data['url']})
@@ -105,9 +100,6 @@ class TaskController(Controller):
         returns:
             task -- task object with resolved references        
         """
-        # populate the article of the task
-        article = self.articles_dao.findOne(task['article']['$oid'])
-        task['article'] = article
 
         # populate the video of the task
         video = self.videos_dao.findOne(task['video']['$oid'])
@@ -137,7 +129,6 @@ class TaskController(Controller):
                 tasks = self.dao.find(filter={'_id': user['tasks']}, toid=['_id'])
 
                 for task in tasks:
-                    self.articles_dao.delete(id=task['article']['$oid'])
                     self.videos_dao.delete(id=task['video']['$oid'])
                     for todo in task['todos']:
                         self.todos_dao.delete(id=todo['$oid'])
